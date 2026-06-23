@@ -1,8 +1,0 @@
-{
-  "name": "rpg-ficha",
-  "version": "1.0.0",
-  "description": "Sistema de Fichas RPG",
-  "dependencies": {
-    "@netlify/blobs": "^8.1.0"
-  }
-}
