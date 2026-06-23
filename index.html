@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SISTEMA // FICHA RPG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --bg2:      #161b22;
+      --bg3:      #21262d;
+      --border:   #30363d;
+      --border2:  #3d444d;
+      --text:     #e6edf3;
+      --text2:    #8b949e;
+      --blue:     #58a6ff;
+      --green:    #3fb950;
+      --red:      #f85149;
+      --yellow:   #d29922;
+      --purple:   #bc8cff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── HEADER ── */
+    header {
+      width: 100%;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg2);
+    }
+    .logo {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--blue);
+    }
+    .logo span { color: var(--text2); }
+    .header-sep { flex: 1; }
+    .user-badge {
+      font-size: 11px;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .user-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      padding: 3px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── SCREENS ── */
+    .screen { display: none; width: 100%; max-width: 680px; padding: 32px 16px; }
+    .screen.active { display: block; }
+
+    /* ── PANEL ── */
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-header .accent { color: var(--blue); }
+    .panel-body { padding: 24px 18px; }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      padding: 10px 18px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      background: none;
+      border: none;
+      color: var(--text2);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color .2s;
+    }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab:hover:not(.active) { color: var(--text); }
+
+    /* ── FORM ── */
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--text2);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--blue);
+    }
+    .field textarea { resize: vertical; min-height: 60px; }
+    .field select option { background: var(--bg3); }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: opacity .2s, background .2s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: var(--blue); color: #0d1117; border-color: var(--blue); }
+    .btn-danger  { background: transparent; color: var(--red); border-color: var(--red); }
+    .btn-ghost   { background: transparent; color: var(--text2); border-color: var(--border); }
+    .btn-green   { background: var(--green); color: #0d1117; border-color: var(--green); }
+    .btn-full    { width: 100%; justify-content: center; }
+    .btn-sm      { padding: 5px 12px; font-size: 11px; }
+
+    /* ── LOGIN ── */
+    .login-wrap { max-width: 380px; margin: 80px auto 0; }
+    .login-title {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .login-title h1 { font-size: 22px; font-weight: 700; letter-spacing: 4px; color: var(--blue); }
+    .login-title p  { font-size: 11px; color: var(--text2); margin-top: 4px; letter-spacing: 2px; }
+    .login-error {
+      background: rgba(248,81,73,.1);
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 11px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .login-error.show { display: block; }
+
+    /* ── FICHA DISPLAY ── */
+    .ficha-terminal {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 18px;
+      font-size: 12px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      color: var(--text);
+    }
+    .ficha-terminal .sep { color: var(--border2); }
+    .ficha-terminal .label { color: var(--text2); }
+    .ficha-terminal .value { color: var(--text); }
+    .ficha-terminal .head  { color: var(--blue); font-weight: 700; }
+    .ficha-terminal .stat-val { color: var(--green); font-weight: 700; }
+
+    /* ── STATS GRID ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin: 4px 0;
+    }
+    .stat-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      text-align: center;
+      padding: 8px 4px;
+    }
+    .stat-box .stat-label { font-size: 10px; color: var(--text2); font-weight: 700; letter-spacing: 1px; }
+    .stat-box .stat-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-top: 1px solid var(--border);
+      color: var(--green);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 5px;
+      padding-top: 5px;
+      outline: none;
+    }
+    .stat-box .stat-input:focus { color: var(--blue); }
+    .stat-box.readonly .stat-input { color: var(--yellow); cursor: default; }
+
+    /* ── TAGS (perícias, proeminências, características) ── */
+    .tags-area { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: var(--text);
+    }
+    .tag .tag-level { color: var(--yellow); font-weight: 700; }
+    .tag .tag-remove {
+      color: var(--red);
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: 0;
+    }
+    .tag.prom  { border-color: var(--blue);   color: var(--blue); }
+    .tag.carac { border-color: var(--purple); color: var(--purple); }
+
+    .add-tag-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      align-items: center;
+    }
+    .add-tag-row input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      padding: 5px 9px;
+      outline: none;
+    }
+    .add-tag-row input:focus { border-color: var(--blue); }
+    .add-tag-row select {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      padding: 5px 6px;
+      outline: none;
+    }
+
+    /* ── MASTER PANEL: list de fichas ── */
+    .ficha-list { display: flex; flex-direction: column; gap: 10px; }
+    .ficha-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ficha-item .fi-id { color: var(--blue); font-weight: 700; font-size: 12px; min-width: 60px; }
+    .ficha-item .fi-name { flex: 1; font-size: 13px; }
+    .ficha-item .fi-class { color: var(--text2); font-size: 11px; }
+    .ficha-item .fi-actions { display: flex; gap: 6px; }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text2);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title .accent { color: var(--blue); }
+
+    /* ── HB DISPLAY ── */
+    .hb-display {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 8px 12px;
+      color: var(--yellow);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* ── ALERT ── */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 5px;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+    .alert-info { background: rgba(88,166,255,.1); border: 1px solid var(--blue); color: var(--blue); }
+    .alert-success { background: rgba(63,185,80,.1); border: 1px solid var(--green); color: var(--green); }
+    .alert-error { background: rgba(248,81,73,.1); border: 1px solid var(--red); color: var(--red); }
+
+    /* ── ID BADGE ── */
+    .id-badge {
+      display: inline-block;
+      background: rgba(88,166,255,.15);
+      border: 1px solid var(--blue);
+      color: var(--blue);
+      padding: 6px 14px;
+      border-radius: 5px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      margin: 8px 0;
+    }
+
+    .mt8  { margin-top: 8px; }
+    .mt16 { margin-top: 16px; }
+    .mt24 { margin-top: 24px; }
+    .gap8 { gap: 8px; }
+    .flex { display: flex; align-items: center; }
+    .hidden { display: none !important; }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    @media (max-width: 500px) {
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+      .field-row, .field-row3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">SISTEMA <span>//</span> RPG</div>
+  <div class="header-sep"></div>
+  <div class="user-badge" id="userBadge" style="display:none">
+    <div class="dot"></div>
+    <span id="userLabel"></span>
+    <button class="btn-logout" onclick="logout()">SAIR</button>
+  </div>
+</header>
+
+<!-- ═══════════════════ LOGIN SCREEN ═══════════════════ -->
+<div class="screen active login-wrap" id="screenLogin">
+  <div class="login-title">
+    <h1>// FICHA //</h1>
+    <p>SISTEMA DE GESTÃO RPG</p>
+  </div>
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab active" onclick="switchLoginTab('mestre')">MESTRE</button>
+      <button class="tab" onclick="switchLoginTab('player')">PLAYER</button>
+    </div>
+
+    <!-- Mestre login -->
+    <div class="panel-body" id="loginMestre">
+      <div class="login-error" id="errMestre">Código inválido.</div>
+      <div class="field">
+        <label>Código do Mestre</label>
+        <input type="password" id="inputMestreCod" placeholder="•••••" maxlength="10"
+          onkeydown="if(event.key==='Enter') loginMestre()" />
+      </div>
+      <button class="btn btn-primary btn-full mt8" onclick="loginMestre()">ENTRAR COMO MESTRE</button>
+    </div>
+
+    <!-- Player login -->
+    <div class="panel-body hidden" id="loginPlayer">
+      <div class="login-error" id="errPlayer">ID não encontrado.</div>
+      <div class="field">
+        <label>Seu ID de Personagem (5 dígitos)</label>
+        <input type="text" id="inputPlayerId" placeholder="12345" maxlength="5"
+          onkeydown="if(event.key==='Enter') loginPlayer()" />
+      </div>
+      <button class="btn btn-primary btn-full mt8" onclick="loginPlayer()">ACESSAR FICHA</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MASTER SCREEN ═══════════════════ -->
+<div class="screen" id="screenMestre" style="max-width:760px">
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab active" onclick="switchMestreTab('fichas')">FICHAS</button>
+      <button class="tab" onclick="switchMestreTab('criar')">CRIAR FICHA</button>
+    </div>
+
+    <!-- Lista de fichas -->
+    <div id="tabFichas">
+      <div class="panel-body">
+        <div class="section-title"><span class="accent">▸</span> FICHAS CADASTRADAS</div>
+        <div class="ficha-list" id="fichaList"></div>
+        <div id="fichaListEmpty" class="hidden" style="color:var(--text2);font-size:12px;padding:8px 0">
+          Nenhuma ficha criada ainda.
+        </div>
+      </div>
+    </div>
+
+    <!-- Criar ficha -->
+    <div id="tabCriar" class="hidden">
+      <div class="panel-body">
+        <div class="section-title"><span class="accent">▸</span> NOVA FICHA</div>
+        <div id="criarAlert"></div>
+        <div id="fichaForm"><!-- gerado via JS --></div>
+        <div class="mt16 flex gap8">
+          <button class="btn btn-primary" onclick="salvarFicha()">SALVAR FICHA</button>
+          <button class="btn btn-ghost" onclick="resetForm()">LIMPAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PLAYER SCREEN ═══════════════════ -->
+<div class="screen" id="screenPlayer">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="accent">▸</span> FICHA DO PERSONAGEM
+      <span style="flex:1"></span>
+      <span style="color:var(--blue);font-size:10px" id="playerIdLabel"></span>
+    </div>
+    <div class="panel-body">
+      <div id="playerAlert"></div>
+      <div id="playerFichaForm"><!-- gerado via JS --></div>
+      <div class="mt16 flex gap8">
+        <button class="btn btn-green" onclick="salvarFichaPlayer()">SALVAR ALTERAÇÕES</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODAL EDIT (Mestre) ═══════════════════ -->
+<div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;overflow-y:auto">
+  <div style="max-width:680px;margin:40px auto;padding:16px">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="accent">▸</span> EDITAR FICHA
+        <span style="flex:1"></span>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal()">FECHAR ✕</button>
+      </div>
+      <div class="panel-body">
+        <div id="modalAlert"></div>
+        <div id="modalFichaForm"></div>
+        <div class="mt16 flex gap8">
+          <button class="btn btn-primary" onclick="salvarFichaModal()">SALVAR</button>
+          <button class="btn btn-ghost" onclick="closeModal()">CANCELAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════
+const MASTER_CODE = '12345';
+const KV_BASE = '/.netlify/functions/kv';
+
+// ═══════════════════════════════════════════════
+//  KV API (Netlify Function)
+// ═══════════════════════════════════════════════
+async function kvGet(key) {
+  const r = await fetch(`${KV_BASE}?action=get&key=${encodeURIComponent(key)}`);
+  const d = await r.json();
+  return d.value ?? null;
+}
+async function kvSet(key, value) {
+  await fetch(KV_BASE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'set', key, value })
+  });
+}
+async function kvDel(key) {
+  await fetch(KV_BASE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'del', key })
+  });
+}
+async function kvList(prefix) {
+  const r = await fetch(`${KV_BASE}?action=list&prefix=${encodeURIComponent(prefix)}`);
+  const d = await r.json();
+  return d.keys ?? [];
+}
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let currentRole = null;   // 'mestre' | 'player'
+let currentId   = null;   // player ID
+let editingId   = null;   // ID being edited in modal
+
+// ═══════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════
+function switchLoginTab(tab) {
+  document.querySelectorAll('.tabs .tab').forEach((t,i) => t.classList.toggle('active', (tab==='mestre'&&i===0)||(tab==='player'&&i===1)));
+  document.getElementById('loginMestre').classList.toggle('hidden', tab !== 'mestre');
+  document.getElementById('loginPlayer').classList.toggle('hidden', tab !== 'player');
+}
+
+function loginMestre() {
+  const v = document.getElementById('inputMestreCod').value;
+  if (v !== MASTER_CODE) {
+    document.getElementById('errMestre').classList.add('show'); return;
+  }
+  document.getElementById('errMestre').classList.remove('show');
+  currentRole = 'mestre';
+  showScreen('screenMestre');
+  document.getElementById('userLabel').textContent = 'MESTRE';
+  document.getElementById('userBadge').style.display = 'flex';
+  loadFichaList();
+  renderFichaForm('fichaForm');
+}
+
+async function loginPlayer() {
+  const id = document.getElementById('inputPlayerId').value.trim();
+  if (!/^\d{5}$/.test(id)) {
+    document.getElementById('errPlayer').textContent = 'O ID deve ter exatamente 5 dígitos.';
+    document.getElementById('errPlayer').classList.add('show'); return;
+  }
+  const data = await kvGet(`ficha:${id}`);
+  if (!data) {
+    document.getElementById('errPlayer').textContent = 'ID não encontrado.';
+    document.getElementById('errPlayer').classList.add('show'); return;
+  }
+  document.getElementById('errPlayer').classList.remove('show');
+  currentRole = 'player';
+  currentId   = id;
+  showScreen('screenPlayer');
+  document.getElementById('userLabel').textContent = `ID ${id}`;
+  document.getElementById('playerIdLabel').textContent = `ID: ${id}`;
+  document.getElementById('userBadge').style.display = 'flex';
+  renderFichaForm('playerFichaForm', JSON.parse(data));
+}
+
+function logout() {
+  currentRole = null; currentId = null; editingId = null;
+  document.getElementById('userBadge').style.display = 'none';
+  document.getElementById('inputMestreCod').value = '';
+  document.getElementById('inputPlayerId').value = '';
+  showScreen('screenLogin');
+}
+
+// ═══════════════════════════════════════════════
+//  SCREENS
+// ═══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════
+//  MASTER TABS
+// ═══════════════════════════════════════════════
+function switchMestreTab(tab) {
+  const tabs = document.querySelectorAll('#screenMestre .tab');
+  tabs[0].classList.toggle('active', tab === 'fichas');
+  tabs[1].classList.toggle('active', tab === 'criar');
+  document.getElementById('tabFichas').classList.toggle('hidden', tab !== 'fichas');
+  document.getElementById('tabCriar').classList.toggle('hidden', tab !== 'criar');
+}
+
+// ═══════════════════════════════════════════════
+//  FICHA FORM RENDERER
+// ═══════════════════════════════════════════════
+const STATS = ['FOR','DES','CON','SAB','INT','CAR','PSI'];
+const ALINHAMENTOS = ['Bom; Leal','Bom; Neutro','Bom; Caótico','Neutro; Leal','Neutro','Neutro; Caótico','Mau; Leal','Mau; Neutro','Mau; Caótico'];
+
+function renderFichaForm(containerId, data) {
+  const d = data || {};
+  const c = document.getElementById(containerId);
+
+  // hb computed
+  const des = parseInt(d.stats?.DES) || 0;
+  const hb  = 10 + des;
+
+  c.innerHTML = `
+    <div class="section-title"><span class="accent">▸</span> BÁSICO</div>
+    <div class="field-row">
+      <div class="field"><label>Nome</label>
+        <input type="text" id="${containerId}_nome" value="${esc(d.nome||'')}" placeholder="Nome do personagem" /></div>
+      <div class="field"><label>Antecedente</label>
+        <input type="text" id="${containerId}_ant" value="${esc(d.antecedente||'')}" placeholder="Ex: Soldado" /></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Alinhamento</label>
+        <select id="${containerId}_ali">
+          ${ALINHAMENTOS.map(a=>`<option${d.alinhamento===a?' selected':''}>${a}</option>`).join('')}
+        </select></div>
+      <div class="field"><label>Classe</label>
+        <input type="text" id="${containerId}_classe" value="${esc(d.classe||'')}" placeholder="Ex: Atirador" /></div>
+    </div>
+    <div class="field"><label>Raça</label>
+      <input type="text" id="${containerId}_raca" value="${esc(d.raca||'')}" placeholder="Ex: Humano" /></div>
+
+    <div class="section-title mt16"><span class="accent">▸</span> ATRIBUTOS</div>
+    <div class="field-row3">
+      <div class="field"><label>Nível</label>
+        <input type="number" id="${containerId}_nivel" value="${d.nivel||0}" min="0" /></div>
+      <div class="field"><label>HB (auto: 10 + DES)</label>
+        <div class="hb-display" id="${containerId}_hb">${hb}</div></div>
+      <div class="field"><label>Vida</label>
+        <input type="text" id="${containerId}_vida" value="${esc(d.vida||'')}" placeholder="Ex: 30/30" /></div>
+    </div>
+    <div class="field">
+      <label>NEN</label>
+      <input type="number" id="${containerId}_nen" value="${d.nen||2}" min="0" />
+    </div>
+
+    <div class="section-title mt16"><span class="accent">▸</span> ESTATÍSTICAS</div>
+    <div class="stats-grid">
+      ${STATS.map(s=>`
+        <div class="stat-box">
+          <div class="stat-label">${s}</div>
+          <input class="stat-input" type="number" id="${containerId}_stat_${s}"
+            value="${d.stats?.[s]||0}"
+            oninput="${containerId==='fichaForm'||containerId==='modalFichaForm'||containerId==='playerFichaForm'?`updateHB('${containerId}')`:''}" />
+        </div>`).join('')}
+    </div>
+
+    <div class="section-title mt16"><span class="accent">▸</span> PROEMINÊNCIA <span style="color:var(--text2);font-weight:400;font-size:10px">(perícias de destaque)</span></div>
+    <div class="tags-area" id="${containerId}_proms">
+      ${(d.proeminencias||[]).map(p=>`
+        <span class="tag prom">${esc(p)}<button class="tag-remove" onclick="removeTag('${containerId}_proms',this,'prom')">×</button></span>`).join('')}
+    </div>
+    <div class="add-tag-row mt8">
+      <input type="text" id="${containerId}_promInput" placeholder="Nova proeminência..." />
+      <button class="btn btn-ghost btn-sm" onclick="addTag('${containerId}_proms','${containerId}_promInput','prom')">+ ADD</button>
+    </div>
+
+    <div class="section-title mt16"><span class="accent">▸</span> CARACTERÍSTICAS</div>
+    <div class="tags-area" id="${containerId}_caracs">
+      ${(d.caracteristicas||[]).map(c2=>`
+        <span class="tag carac">${esc(c2)}<button class="tag-remove" onclick="removeTag('${containerId}_caracs',this,'carac')">×</button></span>`).join('')}
+    </div>
+    <div class="add-tag-row mt8">
+      <input type="text" id="${containerId}_caracInput" placeholder="Nova característica..." />
+      <button class="btn btn-ghost btn-sm" onclick="addTag('${containerId}_caracs','${containerId}_caracInput','carac')">+ ADD</button>
+    </div>
+
+    <div class="section-title mt16"><span class="accent">▸</span> PERÍCIAS <span style="color:var(--text2);font-weight:400;font-size:10px">(nível 1–3)</span></div>
+    <div class="tags-area" id="${containerId}_pericias">
+      ${(d.pericias||[]).map(p=>`
+        <span class="tag">${esc(p.nome)} <span class="tag-level">Lv${p.nivel}</span>
+          <button class="tag-remove" onclick="removeTag('${containerId}_pericias',this,'pericia')">×</button></span>`).join('')}
+    </div>
+    <div class="add-tag-row mt8">
+      <input type="text" id="${containerId}_periciaInput" placeholder="Nome da perícia..." />
+      <select id="${containerId}_periciaLv">
+        <option value="1">Lv1</option><option value="2">Lv2</option><option value="3">Lv3</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="addPericia('${containerId}')">+ ADD</button>
+    </div>
+  `;
+}
+
+function updateHB(containerId) {
+  const des = parseInt(document.getElementById(`${containerId}_stat_DES`)?.value) || 0;
+  const el = document.getElementById(`${containerId}_hb`);
+  if (el) el.textContent = 10 + des;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+// ═══════════════════════════════════════════════
+//  TAG MANAGEMENT
+// ═══════════════════════════════════════════════
+function addTag(areaId, inputId, type) {
+  const input = document.getElementById(inputId);
+  const val = input.value.trim();
+  if (!val) return;
+  const area = document.getElementById(areaId);
+  const span = document.createElement('span');
+  span.className = `tag ${type}`;
+  span.innerHTML = `${esc(val)}<button class="tag-remove" onclick="removeTag('${areaId}',this,'${type}')">×</button>`;
+  area.appendChild(span);
+  input.value = '';
+}
+
+function addPericia(containerId) {
+  const input = document.getElementById(`${containerId}_periciaInput`);
+  const lv    = document.getElementById(`${containerId}_periciaLv`).value;
+  const val = input.value.trim();
+  if (!val) return;
+  const area = document.getElementById(`${containerId}_pericias`);
+  const span = document.createElement('span');
+  span.className = 'tag';
+  span.dataset.nome  = val;
+  span.dataset.nivel = lv;
+  span.innerHTML = `${esc(val)} <span class="tag-level">Lv${lv}</span>
+    <button class="tag-remove" onclick="removeTag('${containerId}_pericias',this,'pericia')">×</button>`;
+  area.appendChild(span);
+  input.value = '';
+}
+
+function removeTag(areaId, btn, type) {
+  btn.parentElement.remove();
+}
+
+// ═══════════════════════════════════════════════
+//  COLLECT FORM DATA
+// ═══════════════════════════════════════════════
+function collectForm(containerId) {
+  const g = id => document.getElementById(`${containerId}_${id}`);
+  const des = parseInt(g('stat_DES')?.value) || 0;
+  const stats = {};
+  STATS.forEach(s => { stats[s] = parseInt(g(`stat_${s}`)?.value) || 0; });
+
+  const proems = [...document.getElementById(`${containerId}_proms`).children]
+    .map(el => el.childNodes[0].textContent.trim()).filter(Boolean);
+  const caracs = [...document.getElementById(`${containerId}_caracs`).children]
+    .map(el => el.childNodes[0].textContent.trim()).filter(Boolean);
+  const pericias = [...document.getElementById(`${containerId}_pericias`).children]
+    .map(el => ({ nome: el.dataset.nome || el.childNodes[0].textContent.trim(), nivel: el.dataset.nivel || '1' }))
+    .filter(p => p.nome);
+
+  return {
+    nome:           g('nome')?.value.trim()   || '',
+    antecedente:    g('ant')?.value.trim()    || '',
+    alinhamento:    g('ali')?.value           || '',
+    classe:         g('classe')?.value.trim() || '',
+    raca:           g('raca')?.value.trim()   || '',
+    nivel:          parseInt(g('nivel')?.value)||0,
+    hb:             10 + des,
+    vida:           g('vida')?.value.trim()   || '',
+    nen:            parseInt(g('nen')?.value) ||2,
+    stats,
+    proeminencias:  proems,
+    caracteristicas:caracs,
+    pericias
+  };
+}
+
+// ═══════════════════════════════════════════════
+//  GENERATE ID
+// ═══════════════════════════════════════════════
+function genId() {
+  return String(Math.floor(10000 + Math.random() * 90000));
+}
+
+// ═══════════════════════════════════════════════
+//  MESTRE: SAVE NEW FICHA
+// ═══════════════════════════════════════════════
+async function salvarFicha() {
+  const data = collectForm('fichaForm');
+  const id   = genId();
+  data.id    = id;
+  await kvSet(`ficha:${id}`, JSON.stringify(data));
+  // save ID list
+  const listRaw = await kvGet('fichas:index');
+  const list = listRaw ? JSON.parse(listRaw) : [];
+  list.push(id);
+  await kvSet('fichas:index', JSON.stringify(list));
+
+  const alertEl = document.getElementById('criarAlert');
+  alertEl.innerHTML = `
+    <div class="alert alert-success">
+      ✓ Ficha criada! ID do player: <span class="id-badge">${id}</span>
+      <div style="font-size:11px;margin-top:4px;color:var(--text2)">Entregue este ID ao player.</div>
+    </div>`;
+  resetForm();
+  loadFichaList();
+}
+
+function resetForm() {
+  renderFichaForm('fichaForm');
+}
+
+// ═══════════════════════════════════════════════
+//  MESTRE: LOAD FICHA LIST
+// ═══════════════════════════════════════════════
+async function loadFichaList() {
+  const listRaw = await kvGet('fichas:index');
+  const list = listRaw ? JSON.parse(listRaw) : [];
+  const el   = document.getElementById('fichaList');
+  const emp  = document.getElementById('fichaListEmpty');
+
+  if (!list.length) { el.innerHTML=''; emp.classList.remove('hidden'); return; }
+  emp.classList.add('hidden');
+
+  const items = await Promise.all(list.map(async id => {
+    const raw = await kvGet(`ficha:${id}`);
+    return raw ? { id, ...JSON.parse(raw) } : null;
+  }));
+
+  el.innerHTML = items.filter(Boolean).map(f => `
+    <div class="ficha-item">
+      <div class="fi-id">#${f.id}</div>
+      <div>
+        <div class="fi-name">${esc(f.nome||'Sem nome')}</div>
+        <div class="fi-class">${esc(f.classe||'—')} · ${esc(f.raca||'—')}</div>
+      </div>
+      <div class="fi-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openEditModal('${f.id}')">EDITAR</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteFicha('${f.id}')">DEL</button>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  MESTRE: DELETE
+// ═══════════════════════════════════════════════
+async function deleteFicha(id) {
+  if (!confirm(`Excluir ficha #${id}?`)) return;
+  await kvDel(`ficha:${id}`);
+  const listRaw = await kvGet('fichas:index');
+  const list = listRaw ? JSON.parse(listRaw).filter(i => i !== id) : [];
+  await kvSet('fichas:index', JSON.stringify(list));
+  loadFichaList();
+}
+
+// ═══════════════════════════════════════════════
+//  MESTRE: EDIT MODAL
+// ═══════════════════════════════════════════════
+async function openEditModal(id) {
+  editingId = id;
+  const raw = await kvGet(`ficha:${id}`);
+  if (!raw) return;
+  const data = JSON.parse(raw);
+  document.getElementById('modalOverlay').style.display = 'block';
+  renderFichaForm('modalFichaForm', data);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').style.display = 'none';
+  editingId = null;
+}
+
+async function salvarFichaModal() {
+  if (!editingId) return;
+  const data = collectForm('modalFichaForm');
+  data.id = editingId;
+  await kvSet(`ficha:${editingId}`, JSON.stringify(data));
+  document.getElementById('modalAlert').innerHTML =
+    '<div class="alert alert-success">✓ Ficha atualizada.</div>';
+  setTimeout(() => { document.getElementById('modalAlert').innerHTML=''; closeModal(); loadFichaList(); }, 1200);
+}
+
+// ═══════════════════════════════════════════════
+//  PLAYER: SAVE
+// ═══════════════════════════════════════════════
+async function salvarFichaPlayer() {
+  if (!currentId) return;
+  const data = collectForm('playerFichaForm');
+  data.id = currentId;
+  await kvSet(`ficha:${currentId}`, JSON.stringify(data));
+  document.getElementById('playerAlert').innerHTML =
+    '<div class="alert alert-success">✓ Ficha salva com sucesso.</div>';
+  setTimeout(() => { document.getElementById('playerAlert').innerHTML=''; }, 2000);
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderFichaForm('fichaForm');
+});
+</script>
+</body>
+</html>
